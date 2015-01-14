@@ -1,0 +1,14 @@
+{
+    "app": {
+        "index": "src/index.html",
+        "js": [
+            "src/app/**/!(app|module)*.js",
+            "src/app/config.js",
+            "src/app/**/module.js",
+            "src/app/app.js"
+        ],
+        "partials": "src/app/**/*.html",
+        "less": "src/app/**/styles/*.less"
+    },
+    "img": "src/img/"
+}

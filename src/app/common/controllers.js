@@ -1,8 +1,8 @@
-function CommonController(CommonService) {
-    var that = this;
-    that.items = [];
+function CommonController($scope, CommonService) {
+    $scope.name = 'CommonController';
+    $scope.items = [];
 
     CommonService.query().then(function(response) {
-        that.items = response;
+        $scope.items = response;
     });
 }

@@ -82,7 +82,7 @@ gulp.task('build', 'Builds the application on the build directory.', ['clean'], 
 
 });
 gulp.task('clean', 'Cleans the build directory.', function(cb) {
-    rimraf('./build', cb);
+    rimraf('./build/*', cb);
 });
 
 gulp.task('auto-reload', 'Reloads the default task when the gulpfile is updated.', function() {

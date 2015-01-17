@@ -1,4 +1,4 @@
-var concat = require('gulp-concat');
+var concat = require('gulp-concat-util');
 var minifyCSS = require('gulp-minify-css');
 var ngAnnotate = require('gulp-ng-annotate');
 var uglify = require('gulp-uglify');
@@ -41,7 +41,9 @@ gulp.task('watch', 'Watches for changes on the source and runs the build task.',
 gulp.task('build', 'Builds the application on the build directory.', ['clean'], function() {
 
     gulp.src(config.app.partials)
-        .pipe(templateCache({module: 'angular-initial'}))
+        .pipe(templateCache({
+            module: 'angular-initial'
+        }))
         .pipe(gulp.dest('build/js/'));
 
     var bower_files = mainBowerFiles();
@@ -53,6 +55,11 @@ gulp.task('build', 'Builds the application on the build directory.', ['clean'], 
 
     gulp.src(config.app.js)
         .pipe(concat('angular-initial.js'))
+        .pipe(ngAnnotate())
+        // .pipe(uglify())
+
+        .pipe(concat.header('(function(window, document, undefined) {\n\'use strict\';\n'))
+        .pipe(concat.footer('\n})(window, document);\n'))
         .pipe(gulp.dest('build/js/'));
 
     gulp.src(config.app.index)

@@ -1,4 +1,6 @@
+var es = require('event-stream');
 var concat = require('gulp-concat-util');
+var rename = require('gulp-rename');
 var minifyCSS = require('gulp-minify-css');
 var ngAnnotate = require('gulp-ng-annotate');
 var uglify = require('gulp-uglify');
@@ -7,7 +9,7 @@ var filter = require('gulp-filter');
 var config = require('./gulp.conf');
 var browserSync = require('browser-sync');
 var reload = browserSync.reload;
-var rimraf = require('rimraf');
+var rimraf = require('gulp-rimraf');
 var mainBowerFiles = require('main-bower-files');
 var spawn = require('child_process').spawn;
 var templateCache = require('gulp-angular-templatecache');
@@ -38,51 +40,78 @@ gulp.task('watch', 'Watches for changes on the source and runs the build task.',
 });
 
 
-gulp.task('build', 'Builds the application on the build directory.', ['clean'], function() {
+gulp.task('build', 'Builds the application on the build directory.', ['clean'], function(cb) {
+    var bower_files = mainBowerFiles();
 
-    gulp.src(config.app.partials)
+    es.merge(
+        gulp.src(config.app.partials)
         .pipe(templateCache({
             module: 'angular-initial'
         }))
-        .pipe(gulp.dest('build/js/'));
+        .pipe(gulp.dest('build/js/')),
 
-    var bower_files = mainBowerFiles();
 
-    gulp.src(bower_files)
+        gulp.src(bower_files)
         .pipe(filter('*.js'))
         .pipe(concat('vendor.js'))
-        .pipe(gulp.dest('build/js/'));
+        .pipe(gulp.dest('build/js/')),
 
-    gulp.src(config.app.js)
+        gulp.src(config.app.js)
         .pipe(concat('angular-initial.js'))
         .pipe(ngAnnotate())
         // .pipe(uglify())
-
         .pipe(concat.header('(function(window, document, undefined) {\n\'use strict\';\n'))
         .pipe(concat.footer('\n})(window, document);\n'))
-        .pipe(gulp.dest('build/js/'));
+        .pipe(gulp.dest('build/js/')),
 
-    gulp.src(config.app.index)
-        .pipe(gulp.dest('build'));
+        gulp.src(config.app.index)
+        .pipe(gulp.dest('build')),
 
-    gulp.src(config.app.less)
+        gulp.src(config.app.less)
         .pipe(less())
         .pipe(concat('angular-initial.css'))
-        .pipe(gulp.dest('build/css'));
+        .pipe(gulp.dest('build/css')),
 
-    gulp.src(config.img)
-        .pipe(gulp.dest('build/'));
+        gulp.src(config.img)
+        .pipe(gulp.dest('build/')),
 
-    return gulp.src('*', {
+        gulp.src('*', {
             read: false
         })
         .pipe(reload({
             stream: true
-        }));
+        }))
+    ).on('end', cb);
 
 });
+
 gulp.task('clean', 'Cleans the build directory.', function(cb) {
-    rimraf('./build/*', cb);
+    return gulp.src(['build/*', 'dist/*'])
+        .pipe(rimraf());
+});
+
+gulp.task('dist', 'Builds the app and prepares it for deployment.', ['build'], function(cb) {
+    es.merge(
+        gulp.src('build/**')
+        .pipe(gulp.dest('dist/')),
+
+        gulp.src('build/js/angular-initial.js')
+        .pipe(uglify())
+        .pipe(rename(function(path) {
+            path.basename += '.min';
+        }))
+        .pipe(gulp.dest('dist/js')),
+
+        gulp.src('build/css/angular-initial.css')
+        .pipe(minifyCSS({
+            keepBreaks: true
+        }))
+        .pipe(rename(function(path) {
+            path.basename += '.min';
+        }))
+        .pipe(gulp.dest('dist/css'))
+    ).on('end', cb);
+
 });
 
 gulp.task('auto-reload', 'Reloads the default task when the gulpfile is updated.', function() {

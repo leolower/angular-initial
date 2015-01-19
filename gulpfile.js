@@ -13,10 +13,23 @@ var rimraf = require('gulp-rimraf');
 var mainBowerFiles = require('main-bower-files');
 var spawn = require('child_process').spawn;
 var templateCache = require('gulp-angular-templatecache');
+var karma = require('gulp-karma');
 
 var gulp = require('gulp-help')(require('gulp'));
 
+var bower_files = mainBowerFiles();
 
+var testFiles = bower_files.concat([
+    'node_modules/angular-mocks/angular-mocks.js',
+
+    "src/app/**/!(app|module)*.js",
+    "src/app/config.js",
+    "src/app/**/module.js",
+    "src/app/app.js",
+
+    'build/js/templates.js',
+    'src/app/**/*.spec.js'
+]);
 
 gulp.task('default', 'DEFAULT TASK: dev.', ['dev']);
 
@@ -35,13 +48,18 @@ gulp.task('serve', 'Runs the server with sync between browsers.', function() {
 });
 
 gulp.task('watch', 'Watches for changes on the source and runs the build task.', ['build'], function() {
+    gulp.src(testFiles)
+        .pipe(karma({
+            configFile: 'karma.conf.js',
+            action: 'watch'
+        }));
+
     return gulp
         .watch('src/**', ['build']);
 });
 
 
 gulp.task('build', 'Builds the application on the build directory.', ['clean'], function(cb) {
-    var bower_files = mainBowerFiles();
 
     es.merge(
         gulp.src(config.app.partials)
@@ -114,19 +132,14 @@ gulp.task('dist', 'Builds the app and prepares it for deployment.', ['build'], f
 
 });
 
-gulp.task('auto-reload', 'Reloads the default task when the gulpfile is updated.', function() {
-    var process;
 
-    function restart() {
-        if (process) {
-            process.kill();
-        }
-
-        process = spawn('gulp', ['default'], {
-            stdio: 'inherit'
+gulp.task('test', function() {
+    return gulp.src(testFiles)
+        .pipe(karma({
+            configFile: 'karma.conf.js',
+            action: 'run'
+        }))
+        .on('error', function(err) {
+            throw err;
         });
-    }
-
-    gulp.watch(['gulpfile.js', 'gulp.conf.json'], restart);
-    // restart();
 });

@@ -3,10 +3,12 @@
         "index": "src/index.html",
         "js": [
             "src/app/**/!(app|module)*.js",
+            "!src/app/**/*.spec.js",
             "src/app/config.js",
             "src/app/**/module.js",
             "src/app/app.js"
         ],
+        "spec": ["src/app/**/*.spec.js"],
         "partials": "src/app/**/*.html",
         "less": "src/app/**/styles/*.less"
     },

@@ -133,7 +133,7 @@ gulp.task('dist', 'Builds the app and prepares it for deployment.', ['build'], f
 });
 
 
-gulp.task('test', function() {
+gulp.task('test', 'Runs the unit tests using Karma.', function() {
     return gulp.src(testFiles)
         .pipe(karma({
             configFile: 'karma.conf.js',

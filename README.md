@@ -18,6 +18,7 @@ angular-initial/
   |  |  |  |- partials/
   |  |  |  |  |- index.html
   |  |  |  |- controllers.js
+  |  |  |  |- common.spec.js
   |  |  |  |- modules.js
   |  |  |  `- services.js
   |  |  |- module*/
@@ -27,6 +28,7 @@ angular-initial/
   |  |  |  |  |- index.html
   |  |  |  |- controllers.js
   |  |  |  |- modules.js
+  |  |  |  |- module1.specs.js
   |  |  |  `- services.js
   |  |- img/
   |  `- index.html
@@ -44,4 +46,17 @@ npm install
 bower install
 
 gulp help
+```
+
+## Testing
+Angular initial uses Karma + Jasmine to test its modules.
+Running
+```
+gulp
+```
+will launch the dev server and karma in watch mode.
+
+If you want to run the tests only once execute:
+```
+gulp test
 ```

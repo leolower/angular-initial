@@ -7,14 +7,12 @@ var uglify = require('gulp-uglify');
 var less = require('gulp-less');
 var filter = require('gulp-filter');
 var config = require('./gulp.conf');
-var browserSync = require('browser-sync');
-var reload = browserSync.reload;
 var rimraf = require('gulp-rimraf');
 var mainBowerFiles = require('main-bower-files');
 var spawn = require('child_process').spawn;
 var templateCache = require('gulp-angular-templatecache');
 var karma = require('gulp-karma');
-
+var liveServer = require("live-server");
 var gulp = require('gulp-help')(require('gulp'));
 
 var bower_files = mainBowerFiles();
@@ -35,19 +33,12 @@ gulp.task('default', 'DEFAULT TASK: dev.', ['dev']);
 
 gulp.task('dev', 'Builds, runs the server and watches for changes to rebuild.', [
     // 'auto-reload',
-    'watch',
-    'serve'
+    'watch'
 ]);
 
-gulp.task('serve', 'Runs the server with sync between browsers.', function() {
-    browserSync({
-        server: {
-            baseDir: "./build/"
-        }
-    });
-});
-
 gulp.task('watch', 'Watches for changes on the source and runs the build task.', ['build'], function() {
+    liveServer.start(8081, "build/", false);
+
     gulp.src(testFiles)
         .pipe(karma({
             configFile: 'karma.conf.js',
@@ -74,6 +65,11 @@ gulp.task('build', 'Builds the application on the build directory.', ['clean'], 
         .pipe(concat('vendor.js'))
         .pipe(gulp.dest('build/js/')),
 
+        gulp.src(bower_files)
+        .pipe(filter('*.css'))
+        .pipe(concat('vendor.css'))
+        .pipe(gulp.dest('build/css/')),
+
         gulp.src(config.app.js)
         .pipe(concat('angular-initial.js'))
         .pipe(ngAnnotate())
@@ -91,14 +87,11 @@ gulp.task('build', 'Builds the application on the build directory.', ['clean'], 
         .pipe(gulp.dest('build/css')),
 
         gulp.src(config.img)
-        .pipe(gulp.dest('build/')),
+        .pipe(gulp.dest('build/img/')),
 
         gulp.src('*', {
             read: false
         })
-        .pipe(reload({
-            stream: true
-        }))
     ).on('end', cb);
 
 });

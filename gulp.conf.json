@@ -12,5 +12,5 @@
         "partials": "src/app/**/*.html",
         "less": "src/app/**/styles/*.less"
     },
-    "img": "src/img/"
+    "img": "src/img/**"
 }
